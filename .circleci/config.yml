@@ -33,23 +33,24 @@ commands:
               sudo npm install --global n
               sudo n 13.8.0
 
-  # destroy-environment:
-  #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  #   parameters:
-  #     Workflow_ID:
-  #       type: string
-  #       default: ${CIRCLE_WORKFLOW_ID:0:7}
-  #   steps:
-  #     - run:
-  #         name: Destroy environments
-  #         when: on_fail
-  #         command: |
-  #               # Empty frontend bucket
-  #               aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
-  #               # Delete frontend stack
-  #               aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
-  #               # Delete backend stack
-  #               aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+                # Delete backend stack
+                aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+                # Empty frontend bucket
+                aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
+                # Delete frontend stack
+                aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+                
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -202,27 +203,27 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       
-      # - destroy-environment
+      - destroy-environment
   
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+configure-infrastructure:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["0b:aa:ca:f4:7e:2f:f4:c6:26:63:e8:5e:7c:b5:c3:ba"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure Server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
 
 #   run-migrations:
 #     docker:
@@ -355,8 +356,8 @@ workflows:
           filters:
             branches:
               only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
