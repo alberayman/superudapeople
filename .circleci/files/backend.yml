@@ -10,7 +10,7 @@ Resources:
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub UdaPeople-${ID}
+      GroupName: !Sub udapeople-${ID}
       GroupDescription: Allow port 9100, 22 and port 3030.
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -33,12 +33,12 @@ Resources:
       SecurityGroups:
         - Ref: InstanceSecurityGroup
       KeyName: udacity
-      ImageId: ami-0530ca8899fac469f
+      ImageId: ami-0ecc74eca1d66d8a6
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
         - Key: Project
-          Value: Udapeople
+          Value: udapeople
           
   InstanceEIP:
     Type: AWS::EC2::EIP
