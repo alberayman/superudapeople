@@ -167,6 +167,7 @@ jobs:
              npm install
              npm audit fix --force --audit-level=critical
              npm audit fix --force --audit-level=critical
+             npm audit fix --force --audit-level=critical
              npm audit --audit-level=critical
 
   deploy-infrastructure:
@@ -461,4 +462,5 @@ workflows:
       # - cleanup:
       #     requires: [cloudfront-update]
 
-# keeping old workflow 4
+# 
+keeping old workflow 4
